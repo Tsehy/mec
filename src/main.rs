@@ -1,13 +1,16 @@
 mod cli;
+mod commands;
+pub mod models;
 
 use clap::Parser;
-use cli::CliCommands;
+use cli::{Cli, CliCommands};
 
-fn main() {
-    match cli::Cli::parse().command() {
-        CliCommands::Init(args) => {},
-        CliCommands::AddGame(args) => {},
-        CliCommands::Display(args) => {},
-        CliCommands::Export(args) => {},
+fn main() -> anyhow::Result<()> {
+    match Cli::parse().command() {
+        CliCommands::Init(args) => commands::init::run(args)?,
+        CliCommands::AddGame(args) => todo!(),
+        CliCommands::Display(args) => todo!(),
+        CliCommands::Export(args) => todo!(),
     }
+    Ok(())
 }

@@ -1,4 +1,4 @@
-use chrono::{DateTime, Local, NaiveDate};
+use chrono::{Local, NaiveDate, NaiveDateTime};
 use clap::Args;
 
 #[derive(Args)]
@@ -18,7 +18,7 @@ impl InitArgs {
 
     pub fn date(&self) -> NaiveDate {
         match &self.date {
-            Some(date) => DateTime::parse_from_rfc3339(date).unwrap().date_naive(),
+            Some(date) => NaiveDateTime::parse_from_str(&date, "%Y-%m-%d").unwrap().date(),
             None => Local::now().date_naive(),
         }
     }
