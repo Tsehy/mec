@@ -2,11 +2,11 @@ use clap::Args;
 
 #[derive(Args)]
 pub struct InitArgs {
-    #[arg(long, short)]
+    #[arg(long, short, help = "New season's name")]
     name: String,
-    #[arg(long, short)]
+    #[arg(long, short, help = "Starting date (yyyy-mm-dd) [default: today]")]
     date: Option<String>,
-    #[arg(long, short, default_value_t = 1500, required = false)]
+    #[arg(long, short, default_value_t = 1500, required = false, help = "Starting ELO of the new players")]
     elo: u16,
 }
 
