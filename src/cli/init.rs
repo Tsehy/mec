@@ -1,4 +1,3 @@
-use chrono::{Local, NaiveDate, NaiveDateTime};
 use clap::Args;
 
 #[derive(Args)]
@@ -16,11 +15,8 @@ impl InitArgs {
         &self.name
     }
 
-    pub fn date(&self) -> NaiveDate {
-        match &self.date {
-            Some(date) => NaiveDateTime::parse_from_str(&date, "%Y-%m-%d").unwrap().date(),
-            None => Local::now().date_naive(),
-        }
+    pub fn date(&self) -> &Option<String> {
+        &self.date
     }
 
     pub fn elo(&self) -> &u16 {

@@ -1,4 +1,4 @@
-use chrono::{NaiveDate};
+use chrono::{Local, NaiveDate};
 use serde::{Deserialize, Serialize};
 use crate::cli::init::InitArgs;
 use crate::models::game::Game;
@@ -8,17 +8,43 @@ use crate::models::player::Player;
 pub struct Season {
     name: String,
     date: NaiveDate,
+    start_elo: u16,
     players: Vec<Player>,
     games: Vec<Game>,
 }
 
-impl From<&InitArgs> for Season {
-    fn from(value: &InitArgs) -> Self {
-        Season {
+impl Season {
+    pub fn players(&self) -> &[Player] {
+        &self.players
+    }
+
+    pub fn players_mut(&mut self) -> &mut Vec<Player> {
+        &mut self.players
+    }
+
+    pub fn games_mut(&mut self) -> &mut Vec<Game> {
+        &mut self.games
+    }
+
+    pub fn start_elo(&self) -> &u16 {
+        &self.start_elo
+    }
+}
+
+impl TryFrom<&InitArgs> for Season {
+    type Error = chrono::format::ParseError;
+    fn try_from(value: &InitArgs) -> Result<Self, Self::Error> {
+        let date = match value.date() {
+            Some(date) => NaiveDate::parse_from_str(&date, "%Y-%m-%d")?,
+            None => Local::now().date_naive(),
+        };
+
+        Ok(Season {
             name: value.name().to_string(),
-            date: value.date(),
+            date,
+            start_elo: *value.elo(),
             players: Vec::new(),
             games: Vec::new(),
-        }
+        })
     }
 }
