@@ -1,9 +1,15 @@
+use crate::models::game_info::GameInfo;
 use chrono::NaiveDate;
 use serde::{Deserialize, Serialize};
-use crate::models::game_info::GameInfo;
 
 #[derive(Serialize, Deserialize)]
 pub struct Game {
     date: NaiveDate,
-    players: Vec<GameInfo>
+    players: Vec<GameInfo>,
+}
+
+impl Game {
+    pub fn new(date: NaiveDate, players: Vec<GameInfo>) -> Self {
+        Game { date, players }
+    }
 }

@@ -6,8 +6,9 @@ pub struct AddGameArgs {
     season: String,
     #[arg(long, short)]
     date: Option<String>,
-    #[arg(default_value_t = false)]
+    #[arg(long, short, default_value_t = false)]
     force: bool,
+    #[arg(num_args = 4)]
     players: Vec<String>,
 }
 
