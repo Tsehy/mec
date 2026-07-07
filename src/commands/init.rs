@@ -1,8 +1,8 @@
+use crate::cli::init::InitArgs;
+use crate::models::season::Season;
 use std::fs::File;
 use std::io::Write;
 use std::path::Path;
-use crate::cli::init::InitArgs;
-use crate::models::season::Season;
 
 #[derive(Debug, thiserror::Error)]
 pub enum InitError {

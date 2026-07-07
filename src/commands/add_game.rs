@@ -33,7 +33,7 @@ pub fn run(args: &AddGameArgs) -> Result<(), AddGameError> {
         Some(date) => NaiveDate::parse_from_str(date, "%Y-%m-%d")?,
         None => Local::now().date_naive(),
     };
-    
+
     check_duplicates(args.players())?;
     let mut game_infos = generate_game_infos(&mut season, &args)?;
 

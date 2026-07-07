@@ -1,8 +1,8 @@
-use chrono::{Local, NaiveDate};
-use serde::{Deserialize, Serialize};
 use crate::cli::init::InitArgs;
 use crate::models::game::Game;
 use crate::models::player::Player;
+use chrono::{Local, NaiveDate};
+use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize)]
 pub struct Season {
@@ -17,11 +17,11 @@ impl Season {
     pub fn name(&self) -> &str {
         &self.name
     }
-    
+
     pub fn date(&self) -> NaiveDate {
         self.date
     }
-    
+
     pub fn players(&self) -> &[Player] {
         &self.players
     }
@@ -33,7 +33,7 @@ impl Season {
     pub fn games(&self) -> &[Game] {
         &self.games
     }
-    
+
     pub fn games_mut(&mut self) -> &mut Vec<Game> {
         &mut self.games
     }
