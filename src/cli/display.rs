@@ -2,8 +2,18 @@ use clap::Args;
 
 #[derive(Args)]
 pub struct DisplayArgs {
-    #[arg(long, short, help = "Season's name")]
+    #[arg(help = "Season's name")]
     season: String,
-    #[arg(default_value_t = 0, help = "Last N games to display, 0 to display all")]
+    #[arg(long, short, default_value_t = 0, help = "Last N games to display, 0 to display all")]
     count: u8,
+}
+
+impl DisplayArgs {
+    pub fn season(&self) -> &str {
+        &self.season
+    }
+
+    pub fn count(&self) -> u8 {
+        self.count
+    }
 }

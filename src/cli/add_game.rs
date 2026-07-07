@@ -2,7 +2,7 @@ use clap::Args;
 
 #[derive(Args)]
 pub struct AddGameArgs {
-    #[arg(long, short, help = "Season's name")]
+    #[arg(help = "Season's name")]
     season: String,
     #[arg(long, short, help = "Game date (yyyy-mm-dd) [default: today]")]
     date: Option<String>,
@@ -25,7 +25,7 @@ impl AddGameArgs {
         &self.force
     }
 
-    pub fn players(&self) -> &Vec<String> {
+    pub fn players(&self) -> &[String] {
         &self.players
     }
 }

@@ -9,7 +9,7 @@ fn main() -> anyhow::Result<()> {
     match Cli::parse().command() {
         CliCommands::Init(args) => commands::init::run(args)?,
         CliCommands::AddGame(args) => commands::add_game::run(args)?,
-        CliCommands::Display(_args) => todo!(),
+        CliCommands::Display(args) => commands::display::run(args)?,
         CliCommands::Export(_args) => todo!(),
     }
     Ok(())

@@ -17,6 +17,8 @@ pub enum AddGameError {
     DateTime(#[from] chrono::ParseError),
     #[error("Player `{0}` in not present in this season")]
     MissingPlayer(String),
+    #[error("Player `{0}` appears more than one in the game")]
+    DuplicatePlayer(String),
 }
 
 pub fn run(args: &AddGameArgs) -> Result<(), AddGameError> {
@@ -27,6 +29,12 @@ pub fn run(args: &AddGameArgs) -> Result<(), AddGameError> {
     season_file.read_to_string(&mut json)?;
     let mut season: Season = serde_json::from_str(&json)?;
 
+    let date = match args.date() {
+        Some(date) => NaiveDate::parse_from_str(date, "%Y-%m-%d")?,
+        None => Local::now().date_naive(),
+    };
+    
+    check_duplicates(args.players())?;
     let mut game_infos = generate_game_infos(&mut season, &args)?;
 
     calculate_new_elo(&mut game_infos);
@@ -39,10 +47,6 @@ pub fn run(args: &AddGameArgs) -> Result<(), AddGameError> {
             .set_elo(info.elo_after());
     }
 
-    let date = match args.date() {
-        Some(date) => NaiveDate::parse_from_str(date, "%Y-%m-%d")?,
-        None => Local::now().date_naive(),
-    };
     season.games_mut().push(Game::new(date, game_infos));
 
     let json = serde_json::to_string(&season)?;
@@ -50,6 +54,20 @@ pub fn run(args: &AddGameArgs) -> Result<(), AddGameError> {
     season_file.write_all(json.as_bytes())?;
 
     println!("Game registered successfully");
+    Ok(())
+}
+
+fn check_duplicates(players: &[String]) -> Result<(), AddGameError> {
+    for current_player in players {
+        let current_player_count = players
+            .iter()
+            .filter(|player| player == &current_player)
+            .count();
+
+        if current_player_count != 1 {
+            return Err(AddGameError::DuplicatePlayer(current_player.clone()));
+        }
+    }
     Ok(())
 }
 
@@ -87,7 +105,7 @@ fn generate_game_infos(
 
 fn calculate_new_elo(game_infos: &mut [GameInfo]) {
     let len = game_infos.len();
-    
+
     let indexes = (0..len - 1).flat_map(|i| (i + 1..len).map(move |j| (i, j)));
     for (winner_index, loser_index) in indexes {
         let delta = elo_change(

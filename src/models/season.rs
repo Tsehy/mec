@@ -14,6 +14,14 @@ pub struct Season {
 }
 
 impl Season {
+    pub fn name(&self) -> &str {
+        &self.name
+    }
+    
+    pub fn date(&self) -> NaiveDate {
+        self.date
+    }
+    
     pub fn players(&self) -> &[Player] {
         &self.players
     }
@@ -22,6 +30,10 @@ impl Season {
         &mut self.players
     }
 
+    pub fn games(&self) -> &[Game] {
+        &self.games
+    }
+    
     pub fn games_mut(&mut self) -> &mut Vec<Game> {
         &mut self.games
     }

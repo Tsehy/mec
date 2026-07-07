@@ -12,4 +12,12 @@ impl Game {
     pub fn new(date: NaiveDate, players: Vec<GameInfo>) -> Self {
         Game { date, players }
     }
+    
+    pub fn date(&self) -> NaiveDate {
+        self.date
+    }
+    
+    pub fn players(&self) -> &[GameInfo] {
+        &self.players
+    }
 }

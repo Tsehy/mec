@@ -8,9 +8,9 @@ pub struct GameInfo {
 }
 
 impl GameInfo {
-    pub fn new(name: &String, elo_before: u16, elo_after: u16) -> Self {
+    pub fn new(name: &str, elo_before: u16, elo_after: u16) -> Self {
         GameInfo {
-            name: name.clone(),
+            name: name.to_string(),
             elo_before,
             elo_after,
         }
