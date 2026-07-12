@@ -2,20 +2,18 @@ use crate::cli::init::InitArgs;
 use crate::models::game::Game;
 use crate::models::player::Player;
 use chrono::{Local, NaiveDate};
-use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
-use std::fs::File;
-use std::io::Read;
+use std::io::{Read, Write};
 
 #[derive(Debug, thiserror::Error)]
-pub enum SeasonLoadError {
+pub enum SeasonError {
     #[error(transparent)]
     Io(#[from] std::io::Error),
     #[error(transparent)]
-    Deserialize(#[from] serde_json::error::Error),
+    Serde(#[from] serde_json::error::Error),
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(serde::Serialize, serde::Deserialize)]
 pub struct Season {
     name: String,
     date: NaiveDate,
@@ -78,16 +76,26 @@ impl Season {
             .max()
             .unwrap_or(0)
     }
-    
-    pub fn load(name: &str) -> Result<Season, SeasonLoadError> {
+
+    pub fn load(name: &str) -> Result<Season, SeasonError> {
         let file_path = format!("{}.json", name);
-        let mut season_file = File::open(file_path)?;
-        
+        let mut season_file = std::fs::File::open(file_path)?;
+
         let mut json = String::new();
         season_file.read_to_string(&mut json)?;
         let season: Season = serde_json::from_str(&json)?;
-        
+
         Ok(season)
+    }
+
+    pub fn save_to_file(&self) -> Result<(), SeasonError> {
+        let json = serde_json::to_string(&self)?;
+        
+        let file_path = format!("{}.json", self.name);
+        let mut season_file = std::fs::File::create(&file_path)?;
+        season_file.write_all(json.as_bytes())?;
+        
+        Ok(())
     }
 }
 

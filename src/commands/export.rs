@@ -1,13 +1,13 @@
 use crate::cli::export::ExportArgs;
 use crate::models::embed::{Body, EmbedError};
-use crate::models::season::{Season, SeasonLoadError};
+use crate::models::season::{Season, SeasonError};
 use chrono::Local;
 use std::fmt::Debug;
 
 #[derive(Debug, thiserror::Error)]
 pub enum ExportError {
     #[error(transparent)]
-    Load(#[from] SeasonLoadError),
+    Load(#[from] SeasonError),
     #[error(transparent)]
     Serde(#[from] serde_json::error::Error),
     #[error("The season contains no players")]

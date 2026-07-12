@@ -1,14 +1,10 @@
 use crate::cli::display::DisplayArgs;
-use crate::models::season::Season;
-use std::fs::File;
-use std::io::Read;
+use crate::models::season::{Season, SeasonError};
 
 #[derive(Debug, thiserror::Error)]
 pub enum DisplayError {
     #[error(transparent)]
-    Io(#[from] std::io::Error),
-    #[error(transparent)]
-    Deserialize(#[from] serde_json::error::Error),
+    Season(#[from] SeasonError),
     #[error("The season contains no players")]
     NoPlayers,
     #[error("The season contains no games")]
@@ -16,12 +12,7 @@ pub enum DisplayError {
 }
 
 pub fn run(args: &DisplayArgs) -> Result<(), DisplayError> {
-    let file_path = format!("{}.json", args.season());
-    let mut season_file = File::open(file_path)?;
-
-    let mut json = String::new();
-    season_file.read_to_string(&mut json)?;
-    let mut season: Season = serde_json::from_str(&json)?;
+    let mut season = Season::load(args.season())?;
 
     if season.players().len() == 0 {
         return Err(DisplayError::NoPlayers);

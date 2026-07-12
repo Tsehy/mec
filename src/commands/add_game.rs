@@ -2,17 +2,13 @@ use crate::cli::add_game::AddGameArgs;
 use crate::models::game::Game;
 use crate::models::game_info::GameInfo;
 use crate::models::player::Player;
-use crate::models::season::Season;
+use crate::models::season::{Season, SeasonError};
 use chrono::{Local, NaiveDate};
-use std::fs::File;
-use std::io::{Read, Write};
 
 #[derive(Debug, thiserror::Error)]
 pub enum AddGameError {
     #[error(transparent)]
-    Io(#[from] std::io::Error),
-    #[error(transparent)]
-    Deserialize(#[from] serde_json::error::Error),
+    SeasonLoad(#[from] SeasonError),
     #[error(transparent)]
     DateTime(#[from] chrono::ParseError),
     #[error("Player `{0}` in not present in this season")]
@@ -22,12 +18,7 @@ pub enum AddGameError {
 }
 
 pub fn run(args: &AddGameArgs) -> Result<(), AddGameError> {
-    let file_name = format!("{}.json", args.season());
-    let mut season_file = File::open(&file_name)?;
-
-    let mut json = String::new();
-    season_file.read_to_string(&mut json)?;
-    let mut season: Season = serde_json::from_str(&json)?;
+    let mut season = Season::load(args.season())?;
 
     let date = match args.date() {
         Some(date) => NaiveDate::parse_from_str(date, "%Y-%m-%d")?,
@@ -49,9 +40,7 @@ pub fn run(args: &AddGameArgs) -> Result<(), AddGameError> {
 
     season.games_mut().push(Game::new(date, game_infos));
 
-    let json = serde_json::to_string(&season)?;
-    let mut season_file = File::create(&file_name)?;
-    season_file.write_all(json.as_bytes())?;
+    season.save_to_file()?;
 
     println!("Game registered successfully");
     Ok(())
