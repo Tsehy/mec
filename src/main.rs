@@ -10,7 +10,7 @@ fn main() -> anyhow::Result<()> {
         CliCommands::Init(args) => commands::init::run(args)?,
         CliCommands::AddGame(args) => commands::add_game::run(args)?,
         CliCommands::Display(args) => commands::display::run(args)?,
-        CliCommands::Export(_args) => todo!(),
+        CliCommands::Export(args) => commands::export::run(args)?,
     }
     Ok(())
 }

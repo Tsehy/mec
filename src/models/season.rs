@@ -3,6 +3,17 @@ use crate::models::game::Game;
 use crate::models::player::Player;
 use chrono::{Local, NaiveDate};
 use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
+use std::fs::File;
+use std::io::Read;
+
+#[derive(Debug, thiserror::Error)]
+pub enum SeasonLoadError {
+    #[error(transparent)]
+    Io(#[from] std::io::Error),
+    #[error(transparent)]
+    Deserialize(#[from] serde_json::error::Error),
+}
 
 #[derive(Serialize, Deserialize)]
 pub struct Season {
@@ -40,6 +51,43 @@ impl Season {
 
     pub fn start_elo(&self) -> &u16 {
         &self.start_elo
+    }
+
+    pub fn sort_players(&mut self) {
+        self.players_mut().sort_by(|a, b| b.elo().cmp(&a.elo()));
+    }
+
+    pub fn get_game_counts(&self) -> HashMap<&str, u32> {
+        let player_names = self
+            .games()
+            .iter()
+            .flat_map(|game| game.players())
+            .map(|player| player.name());
+
+        let mut game_count: HashMap<&str, u32> = HashMap::new();
+        for player_name in player_names {
+            *game_count.entry(player_name).or_insert(0) += 1;
+        }
+        game_count
+    }
+
+    pub fn get_max_name_length(&self) -> usize {
+        self.players()
+            .iter()
+            .map(|player| player.name().chars().count())
+            .max()
+            .unwrap_or(0)
+    }
+    
+    pub fn load(name: &str) -> Result<Season, SeasonLoadError> {
+        let file_path = format!("{}.json", name);
+        let mut season_file = File::open(file_path)?;
+        
+        let mut json = String::new();
+        season_file.read_to_string(&mut json)?;
+        let season: Season = serde_json::from_str(&json)?;
+        
+        Ok(season)
     }
 }
 

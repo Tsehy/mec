@@ -1,5 +1,4 @@
 use crate::cli::display::DisplayArgs;
-use crate::models::game_info::GameInfo;
 use crate::models::season::Season;
 use std::fs::File;
 use std::io::Read;
@@ -10,8 +9,10 @@ pub enum DisplayError {
     Io(#[from] std::io::Error),
     #[error(transparent)]
     Deserialize(#[from] serde_json::error::Error),
+    #[error("The season contains no players")]
+    NoPlayers,
     #[error("The season contains no games")]
-    EmptySeason,
+    NoGames,
 }
 
 pub fn run(args: &DisplayArgs) -> Result<(), DisplayError> {
@@ -23,7 +24,11 @@ pub fn run(args: &DisplayArgs) -> Result<(), DisplayError> {
     let mut season: Season = serde_json::from_str(&json)?;
 
     if season.players().len() == 0 {
-        return Err(DisplayError::EmptySeason);
+        return Err(DisplayError::NoPlayers);
+    }
+
+    if season.games().len() == 0 {
+        return Err(DisplayError::NoGames);
     }
 
     println!("{} - {}\n", season.name(), season.date());
@@ -34,28 +39,13 @@ pub fn run(args: &DisplayArgs) -> Result<(), DisplayError> {
 }
 
 fn print_summary(season: &mut Season) {
-    season.players_mut().sort_by(|a, b| b.elo().cmp(&a.elo()));
-
-    let max_name_length = season
-        .players()
-        .iter()
-        .map(|player| player.name().chars().count())
-        .max()
-        .unwrap_or(0);
-
-    let games: Vec<&GameInfo> = season
-        .games()
-        .iter()
-        .flat_map(|game| game.players())
-        .collect();
+    season.sort_players();
+    let max_name_length = season.get_max_name_length();
+    let game_count = season.get_game_counts();
 
     let mut position = 1u8;
     for player in season.players().iter() {
         let spacing = " ".repeat(max_name_length + 1 - player.name().chars().count());
-        let game_count = games
-            .iter()
-            .filter(|info| info.name() == player.name())
-            .count();
 
         println!(
             "{:2}. {}:{}{} ({})",
@@ -63,7 +53,7 @@ fn print_summary(season: &mut Season) {
             player.name(),
             spacing,
             player.elo(),
-            game_count,
+            game_count.get(player.name()).unwrap_or(&0),
         );
         position += 1;
     }
