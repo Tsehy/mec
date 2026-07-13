@@ -22,14 +22,14 @@ impl Cli {
 pub enum CliCommands {
     #[command(about = "Initialize a new season")]
     Init(init::InitArgs),
-    #[command(about = "Add a player to a season")]
+    #[command(alias = "ap",about = "Add a player to a season")]
     AddPlayer(add_player::AddPlayerArgs),
-    #[command(about = "Add game to a season")]
+    #[command(alias = "ag" ,about = "Add game to a season")]
     AddGame(add_game::AddGameArgs),
-    #[command(about = "Remove games from a season")]
+    #[command(alias = "rmg", about = "Remove games from a season")]
     RemoveGame(remove_game::RemoveGameArgs),
-    #[command(about = "Display information for a season")]
+    #[command(alias = "dsp", about = "Display information for a season")]
     Display(display::DisplayArgs),
-    #[command(about = "Generate embed json template for a season")]
+    #[command(alias = "ex", about = "Generate embed json template for a season")]
     Export(export::ExportArgs),
 }

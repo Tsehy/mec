@@ -7,9 +7,9 @@ pub struct Player {
 }
 
 impl Player {
-    pub fn new(name: &String, elo: u16) -> Self {
+    pub fn new(name: &str, elo: u16) -> Self {
         Player {
-            name: name.clone(),
+            name: name.to_string(),
             elo,
         }
     }

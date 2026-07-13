@@ -13,5 +13,5 @@ To calculate the ranking of a four player game the software generates and evalua
 
 ## ToDo list
 
-- [ ] 'Remove game' command to be able to correct mistakes
-- [ ] 'Remove player' command (reasons above ^)
+- [ ] 'Remove player' command to be able to correct mistakes
+- [ ] Add real 'undo/reset' command, to correct any destructive operation
