@@ -7,3 +7,13 @@ pub struct AddPlayerArgs {
     #[arg(help = "Player's name")]
     name: String
 }
+
+impl AddPlayerArgs {
+    pub fn season(&self) -> &str {
+        &self.season
+    }
+
+    pub fn name(&self) -> &String {
+        &self.name
+    }
+}

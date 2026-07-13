@@ -6,11 +6,12 @@ To calculate the ranking of a four player game the software generates and evalua
 ## Features/Commands
 
 - Init Season
+- App player to a season
 - Add game to a season
 - Display quick information
 - Export summary to JSON (For [carl.gg](https://carl.gg) discord embed)
 
 ## ToDo list
 
-- [ ] Add player command to not rely only on `--force` when adding a game
-- [ ] Remove game command to be able to correct mistakes
+- [ ] 'Remove game' command to be able to correct mistakes
+- [ ] 'Remove player' command (reasons above ^)
