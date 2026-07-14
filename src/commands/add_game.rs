@@ -34,7 +34,7 @@ pub fn run(args: &AddGameArgs) -> Result<(), AddGameError> {
             .players_mut()
             .iter_mut()
             .find(|player| player.name() == info.name())
-            .unwrap() // this search was validated before
+            .expect("player should be present")
             .set_elo(info.elo_after());
     }
 
@@ -42,7 +42,7 @@ pub fn run(args: &AddGameArgs) -> Result<(), AddGameError> {
 
     season.save_to_file()?;
 
-    println!("Game registered successfully");
+    println!("Game registered");
     Ok(())
 }
 

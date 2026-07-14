@@ -10,6 +10,7 @@ fn main() -> anyhow::Result<()> {
         CliCommands::Init(args) => commands::init::run(args)?,
         CliCommands::AddPlayer(args) => commands::add_player::run(&args)?,
         CliCommands::AddGame(args) => commands::add_game::run(args)?,
+        CliCommands::RemovePlayer(args) => commands::remove_player::run(&args)?,
         CliCommands::RemoveGame(args) => commands::remove_game::run(&args)?,
         CliCommands::Display(args) => commands::display::run(args)?,
         CliCommands::Export(args) => commands::export::run(args)?,

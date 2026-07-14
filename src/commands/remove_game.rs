@@ -35,7 +35,7 @@ pub fn run(args: &RemoveGameArgs) -> Result<(), RemoveGameError> {
     season.save_to_file()?;
 
     println!(
-        "Last `{}` games removed successfully from `{}`",
+        "Last `{}` games removed from `{}`",
         args.count(),
         args.season()
     );
