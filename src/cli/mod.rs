@@ -3,8 +3,6 @@ pub mod add_game;
 pub mod display;
 pub mod export;
 pub mod add_player;
-pub mod remove_game;
-pub mod remove_player;
 
 #[derive(clap::Parser)]
 #[command(about = "Mahjong Elo Calculator")]
@@ -27,10 +25,6 @@ pub enum CliCommands {
     AddPlayer(add_player::AddPlayerArgs),
     #[command(alias = "ag", about = "Add game to a season")]
     AddGame(add_game::AddGameArgs),
-    #[command(alias = "rmp", about = "Remove player with zero games from a season")]
-    RemovePlayer(remove_player::RemovePlayerArgs),
-    #[command(alias = "rmg", about = "Remove games from a season")]
-    RemoveGame(remove_game::RemoveGameArgs),
     #[command(alias = "dsp", about = "Display information for a season")]
     Display(display::DisplayArgs),
     #[command(alias = "ex", about = "Generate embed json template for a season")]
