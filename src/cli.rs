@@ -91,6 +91,10 @@ impl AddGameArgs {
     pub fn players(&self) -> &[String] {
         &self.players
     }
+    
+    pub fn players_arr(&self) -> [String; 4] {
+        self.players.clone().try_into().expect("there should be exactly four players")
+    }
 }
 
 #[derive(Args)]

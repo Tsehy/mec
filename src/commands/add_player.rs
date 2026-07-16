@@ -1,6 +1,7 @@
 use crate::cli::AddPlayerArgs;
 use crate::domain::{Season, DomainError};
-use crate::history::event::{Event, AddPlayerEvent};
+use crate::history::event::EventAction;
+use crate::history::player_created::PlayerCreated;
 
 #[derive(Debug, thiserror::Error)]
 pub enum AddPlayerError {
@@ -22,7 +23,7 @@ pub fn run(args: &AddPlayerArgs) -> Result<(), AddPlayerError> {
         return Err(AddPlayerError::PlayerExists(args.name().to_string()));
     }
 
-    let event = AddPlayerEvent::new(args.name());
+    let event = PlayerCreated::new(args.name());
     event.execute(season)?;
     
     // TODO:

@@ -1,49 +1,62 @@
-use crate::domain::{Player, Season, DomainError};
+use crate::domain::{DomainError, Season};
+use crate::history::{game_created::GameCreated, player_created::PlayerCreated};
+use std::fmt::{Display, Formatter};
+use std::str::FromStr;
 
-pub fn parse(text: &str) -> Option<Box<dyn Event>> {
-    todo!();
+#[derive(Debug, thiserror::Error)]
+pub enum EventParseError {
+    #[error("Unknown event in history: `{0}`")]
+    UnknownEvent(String),
+    #[error("The event has no identifier")]
+    NoIdentifier,
 }
 
-pub trait Event {
+pub trait EventAction: Display + FromStr {
     fn execute(&self, season: Season) -> Result<(), DomainError>;
     fn undo(&self, season: Season) -> Result<(), DomainError>;
-    fn to_string(&self) -> String;
 }
 
-pub struct AddPlayerEvent {
-    name: String,
+pub enum Event {
+    GameCreated(GameCreated),
+    PlayerCreated(PlayerCreated),
 }
 
-impl AddPlayerEvent {
-    pub fn new(name: &str) -> Self {
-        AddPlayerEvent {
-            name: name.to_string(),
+impl Display for Event {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Event::GameCreated(event) => event.fmt(f),
+            Event::PlayerCreated(event) => event.fmt(f),
         }
     }
 }
 
-impl Event for AddPlayerEvent {
-    fn execute(&self, mut season: Season) -> Result<(), DomainError> {
-        let new_player = Player::new(&self.name, *season.start_elo());
-        season.players_mut().push(new_player);
-        season.save_to_file()?;
-        Ok(())
+impl FromStr for Event {
+    type Err = EventParseError;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s.chars().position(|c| c == ' ') {
+            None => Err(EventParseError::NoIdentifier),
+            Some(word_end) => match &s[..word_end] {
+                "GameCreated" => Ok(Event::GameCreated(GameCreated::from_str(s)?)),
+                "PlayerCreated" => Ok(Event::PlayerCreated(PlayerCreated::from_str(s)?)),
+                _ => Err(EventParseError::UnknownEvent(s.to_string())),
+            },
+        }
+    }
+}
+
+impl EventAction for Event {
+    fn execute(&self, season: Season) -> Result<(), DomainError> {
+        match self {
+            Event::GameCreated(event) => event.execute(season),
+            Event::PlayerCreated(event) => event.execute(season),
+        }
     }
 
-    fn undo(&self, mut season: Season) -> Result<(), DomainError> {
-        let index = season
-            .players()
-            .iter()
-            .position(|player| player.name() == self.name)
-            .expect("player should be present in the season");
-
-        season.players_mut().remove(index);
-        season.save_to_file()?;
-
-        Ok(())
-    }
-
-    fn to_string(&self) -> String {
-        format!("AddPlayer {}", self.name)
+    fn undo(&self, season: Season) -> Result<(), DomainError> {
+        match self {
+            Event::GameCreated(event) => event.undo(season),
+            Event::PlayerCreated(event) => event.undo(season),
+        }
     }
 }
