@@ -1,10 +1,10 @@
-use crate::cli::display::DisplayArgs;
-use crate::models::season::{Season, SeasonError};
+use crate::cli::DisplayArgs;
+use crate::domain::{Season, DomainError};
 
 #[derive(Debug, thiserror::Error)]
 pub enum DisplayError {
     #[error(transparent)]
-    Season(#[from] SeasonError),
+    Season(#[from] DomainError),
     #[error("The season contains no players")]
     NoPlayers,
     #[error("The season contains no games")]

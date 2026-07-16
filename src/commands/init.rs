@@ -1,5 +1,5 @@
-use crate::cli::init::InitArgs;
-use crate::models::season::Season;
+use crate::cli::InitArgs;
+use crate::domain::Season;
 use std::fs::File;
 use std::io::Write;
 use std::path::Path;
@@ -16,6 +16,7 @@ pub enum InitError {
     DateTime(#[from] chrono::format::ParseError),
 }
 
+// TODO: create history files
 pub fn run(args: &InitArgs) -> Result<(), InitError> {
     let file_name = format!("{}.json", args.name());
     if Path::new(&file_name).exists() {

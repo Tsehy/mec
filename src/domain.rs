@@ -1,12 +1,11 @@
-use crate::cli::init::InitArgs;
-use crate::models::game::Game;
-use crate::models::player::Player;
+use crate::cli::InitArgs;
 use chrono::{Local, NaiveDate};
+use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::io::{Read, Write};
 
 #[derive(Debug, thiserror::Error)]
-pub enum SeasonError {
+pub enum DomainError {
     #[error(transparent)]
     Io(#[from] std::io::Error),
     #[error(transparent)]
@@ -77,7 +76,7 @@ impl Season {
             .unwrap_or(0)
     }
 
-    pub fn load(name: &str) -> Result<Season, SeasonError> {
+    pub fn load(name: &str) -> Result<Season, DomainError> {
         let file_path = format!("{}.json", name);
         let mut season_file = std::fs::File::open(file_path)?;
 
@@ -88,13 +87,13 @@ impl Season {
         Ok(season)
     }
 
-    pub fn save_to_file(&self) -> Result<(), SeasonError> {
+    pub fn save_to_file(&self) -> Result<(), DomainError> {
         let json = serde_json::to_string(&self)?;
-        
+
         let file_path = format!("{}.json", self.name);
         let mut season_file = std::fs::File::create(&file_path)?;
         season_file.write_all(json.as_bytes())?;
-        
+
         Ok(())
     }
 }
@@ -114,5 +113,89 @@ impl TryFrom<&InitArgs> for Season {
             players: Vec::new(),
             games: Vec::new(),
         })
+    }
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct Player {
+    name: String,
+    elo: u16,
+}
+
+impl Player {
+    pub fn new(name: &str, elo: u16) -> Self {
+        Player {
+            name: name.to_string(),
+            elo,
+        }
+    }
+
+    pub fn name(&self) -> &str {
+        &self.name
+    }
+
+    pub fn elo(&self) -> u16 {
+        self.elo
+    }
+
+    pub fn set_elo(&mut self, new_elo: u16) {
+        self.elo = new_elo;
+    }
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct Game {
+    date: NaiveDate,
+    players: Vec<GameInfo>,
+}
+
+impl Game {
+    pub fn new(date: NaiveDate, players: Vec<GameInfo>) -> Self {
+        Game { date, players }
+    }
+
+    pub fn date(&self) -> NaiveDate {
+        self.date
+    }
+
+    pub fn players(&self) -> &[GameInfo] {
+        &self.players
+    }
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct GameInfo {
+    name: String,
+    elo_before: u16,
+    elo_after: u16,
+}
+
+impl GameInfo {
+    pub fn new(name: &str, elo_before: u16, elo_after: u16) -> Self {
+        GameInfo {
+            name: name.to_string(),
+            elo_before,
+            elo_after,
+        }
+    }
+
+    pub fn name(&self) -> &str {
+        &self.name
+    }
+
+    pub fn elo_before(&self) -> u16 {
+        self.elo_before
+    }
+
+    pub fn elo_after(&self) -> u16 {
+        self.elo_after
+    }
+
+    pub fn elo_after_add(&mut self, delta: u16) {
+        self.elo_after = self.elo_after.saturating_add(delta);
+    }
+
+    pub fn elo_after_sub(&mut self, delta: u16) {
+        self.elo_after = self.elo_after.saturating_sub(delta);
     }
 }

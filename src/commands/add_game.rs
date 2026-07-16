@@ -1,14 +1,11 @@
-use crate::cli::add_game::AddGameArgs;
-use crate::models::game::Game;
-use crate::models::game_info::GameInfo;
-use crate::models::player::Player;
-use crate::models::season::{Season, SeasonError};
+use crate::cli::AddGameArgs;
+use crate::domain::{DomainError, Game, GameInfo, Player, Season};
 use chrono::{Local, NaiveDate};
 
 #[derive(Debug, thiserror::Error)]
 pub enum AddGameError {
     #[error(transparent)]
-    SeasonLoad(#[from] SeasonError),
+    SeasonLoad(#[from] DomainError),
     #[error(transparent)]
     DateTime(#[from] chrono::ParseError),
     #[error("Player `{0}` in not present in this season")]
@@ -17,6 +14,7 @@ pub enum AddGameError {
     DuplicatePlayer(String),
 }
 
+// TODO: event creation
 pub fn run(args: &AddGameArgs) -> Result<(), AddGameError> {
     let mut season = Season::load(args.season())?;
 
@@ -64,7 +62,6 @@ fn generate_game_infos(
     season: &mut Season,
     args: &AddGameArgs,
 ) -> Result<Vec<GameInfo>, AddGameError> {
-    let starting_elo = *season.start_elo();
     let mut game_infos: Vec<GameInfo> = Vec::new();
 
     for player_name in args.players() {
@@ -78,14 +75,7 @@ fn generate_game_infos(
                 game_infos.push(GameInfo::new(player.name(), player.elo(), player.elo()))
             }
             None => {
-                if *args.force() {
-                    season
-                        .players_mut()
-                        .push(Player::new(player_name, starting_elo));
-                    game_infos.push(GameInfo::new(player_name, starting_elo, starting_elo));
-                } else {
-                    return Err(AddGameError::MissingPlayer(player_name.clone()));
-                }
+                return Err(AddGameError::MissingPlayer(player_name.clone()));
             }
         }
     }

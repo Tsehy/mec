@@ -1,17 +1,17 @@
-use crate::cli::add_player::AddPlayerArgs;
-use crate::models::player::Player;
-use crate::models::season::{Season, SeasonError};
+use crate::cli::AddPlayerArgs;
+use crate::domain::{Season, DomainError};
+use crate::history::event::{Event, AddPlayerEvent};
 
 #[derive(Debug, thiserror::Error)]
 pub enum AddPlayerError {
     #[error(transparent)]
-    Season(#[from] SeasonError),
+    Season(#[from] DomainError),
     #[error("Player `{0}` already exists")]
     PlayerExists(String),
 }
 
 pub fn run(args: &AddPlayerArgs) -> Result<(), AddPlayerError> {
-    let mut season = Season::load(args.season())?;
+    let season = Season::load(args.season())?;
 
     let player_exists = season
         .players()
@@ -22,10 +22,13 @@ pub fn run(args: &AddPlayerArgs) -> Result<(), AddPlayerError> {
         return Err(AddPlayerError::PlayerExists(args.name().to_string()));
     }
 
-    let new_player = Player::new(args.name(), *season.start_elo());
-    season.players_mut().push(new_player);
-    season.save_to_file()?;
+    let event = AddPlayerEvent::new(args.name());
+    event.execute(season)?;
+    
+    // TODO:
+    // "clear" redo stack
+    // append to history
 
-    println!("Player `{}` added to `{}`", args.name(), season.name());
+    println!("Player `{}` added to `{}`", args.name(), args.season());
     Ok(())
 }

@@ -1,6 +1,8 @@
 mod cli;
 mod commands;
-mod models;
+mod history;
+mod domain;
+mod embed;
 
 use clap::Parser;
 use cli::{Cli, CliCommands};
