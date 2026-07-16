@@ -2,7 +2,6 @@ use crate::cli::InitArgs;
 use chrono::{Local, NaiveDate};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
-use std::io::{Read, Write};
 
 #[derive(Debug, thiserror::Error)]
 pub enum DomainError {
@@ -78,22 +77,15 @@ impl Season {
 
     pub fn load(name: &str) -> Result<Season, DomainError> {
         let file_path = format!("{}.json", name);
-        let mut season_file = std::fs::File::open(file_path)?;
-
-        let mut json = String::new();
-        season_file.read_to_string(&mut json)?;
+        let json = std::fs::read_to_string(file_path)?;
         let season: Season = serde_json::from_str(&json)?;
-
         Ok(season)
     }
 
     pub fn save_to_file(&self) -> Result<(), DomainError> {
-        let json = serde_json::to_string(&self)?;
-
         let file_path = format!("{}.json", self.name);
-        let mut season_file = std::fs::File::create(&file_path)?;
-        season_file.write_all(json.as_bytes())?;
-
+        let json = serde_json::to_string(&self)?;
+        std::fs::write(file_path, &json)?;
         Ok(())
     }
 }
