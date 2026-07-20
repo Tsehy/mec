@@ -1,6 +1,6 @@
 use crate::cli::AddPlayerArgs;
 use crate::domain::{DomainError, Season};
-use crate::history::event::{Event, EventAction};
+use crate::history::event::EventAction;
 use crate::history::player_created::PlayerCreated;
 use crate::history::{History, HistoryError};
 
@@ -30,7 +30,7 @@ pub fn run(args: &AddPlayerArgs) -> Result<(), AddPlayerError> {
     event.execute(season)?;
 
     let mut history = History::load(args.season())?;
-    history.append(Event::PlayerCreated(event))?;
+    history.append(event)?;
     history.save_to_file()?;
 
     println!("Player `{}` added to `{}`", args.name(), args.season());

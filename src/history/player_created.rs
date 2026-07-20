@@ -1,5 +1,5 @@
 use crate::domain::{DomainError, Player, Season};
-use crate::history::event::{EventAction, EventParseError};
+use crate::history::event::{Event, EventAction, EventParseError};
 use std::fmt::Display;
 
 pub struct PlayerCreated {
@@ -7,10 +7,10 @@ pub struct PlayerCreated {
 }
 
 impl PlayerCreated {
-    pub fn new(name: &str) -> Self {
-        PlayerCreated {
+    pub fn new(name: &str) -> Event {
+        Event::PlayerCreated(PlayerCreated {
             name: name.to_string(),
-        }
+        })
     }
 }
 

@@ -1,6 +1,6 @@
 use crate::cli::AddGameArgs;
 use crate::domain::{DomainError, Season};
-use crate::history::event::{Event, EventAction};
+use crate::history::event::EventAction;
 use crate::history::game_created::GameCreated;
 use crate::history::{History, HistoryError};
 use chrono::{Local, NaiveDate};
@@ -34,7 +34,7 @@ pub fn run(args: &AddGameArgs) -> Result<(), AddGameError> {
     event.execute(season)?;
 
     let mut history = History::load(args.season())?;
-    history.append(Event::GameCreated(event))?;
+    history.append(event)?;
     history.save_to_file()?;
 
     println!("Game registered");

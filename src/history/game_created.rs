@@ -1,5 +1,5 @@
 use crate::domain::{DomainError, Game, GameInfo, Season};
-use crate::history::event::{EventAction, EventParseError};
+use crate::history::event::{Event, EventAction, EventParseError};
 use chrono::NaiveDate;
 use std::fmt::{Display, Formatter};
 
@@ -9,8 +9,8 @@ pub struct GameCreated {
 }
 
 impl GameCreated {
-    pub fn new(date: NaiveDate, players: [String; 4]) -> Self {
-        GameCreated { date, players }
+    pub fn new(date: NaiveDate, players: [String; 4]) -> Event {
+        Event::GameCreated(GameCreated { date, players })
     }
 }
 

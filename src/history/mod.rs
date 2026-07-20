@@ -46,7 +46,7 @@ impl History {
             .lines()
             .map(|line| line.to_string())
             .collect();
-        
+
         Ok(History {
             events,
             state,
@@ -90,9 +90,9 @@ impl History {
 
         std::fs::write(
             format!(".mec/{}/state", self.season),
-            self.state.to_string()
+            self.state.to_string(),
         )?;
-        
+
         Ok(())
     }
 }
