@@ -1,7 +1,8 @@
 use crate::cli::AddPlayerArgs;
-use crate::domain::{Season, DomainError};
-use crate::history::event::EventAction;
+use crate::domain::{DomainError, Season};
+use crate::history::event::{Event, EventAction};
 use crate::history::player_created::PlayerCreated;
+use crate::history::{History, HistoryError};
 
 #[derive(Debug, thiserror::Error)]
 pub enum AddPlayerError {
@@ -9,6 +10,8 @@ pub enum AddPlayerError {
     Season(#[from] DomainError),
     #[error("Player `{0}` already exists")]
     PlayerExists(String),
+    #[error(transparent)]
+    History(#[from] HistoryError),
 }
 
 pub fn run(args: &AddPlayerArgs) -> Result<(), AddPlayerError> {
@@ -25,10 +28,10 @@ pub fn run(args: &AddPlayerArgs) -> Result<(), AddPlayerError> {
 
     let event = PlayerCreated::new(args.name());
     event.execute(season)?;
-    
-    // TODO:
-    // "clear" redo stack
-    // append to history
+
+    let mut history = History::load(args.season())?;
+    history.append(Event::PlayerCreated(event))?;
+    history.save_to_file()?;
 
     println!("Player `{}` added to `{}`", args.name(), args.season());
     Ok(())

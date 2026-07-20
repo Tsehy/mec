@@ -1,7 +1,8 @@
 use crate::cli::AddGameArgs;
 use crate::domain::{DomainError, Season};
-use crate::history::event::EventAction;
+use crate::history::event::{Event, EventAction};
 use crate::history::game_created::GameCreated;
+use crate::history::{History, HistoryError};
 use chrono::{Local, NaiveDate};
 
 #[derive(Debug, thiserror::Error)]
@@ -14,6 +15,8 @@ pub enum AddGameError {
     MissingPlayer(String),
     #[error("Player `{0}` appears more than one in the game")]
     DuplicatePlayer(String),
+    #[error(transparent)]
+    History(#[from] HistoryError),
 }
 
 pub fn run(args: &AddGameArgs) -> Result<(), AddGameError> {
@@ -30,9 +33,9 @@ pub fn run(args: &AddGameArgs) -> Result<(), AddGameError> {
     let event = GameCreated::new(date, args.players_arr());
     event.execute(season)?;
 
-    // TODO:
-    // "clear" redo stack
-    // append to history
+    let mut history = History::load(args.season())?;
+    history.append(Event::GameCreated(event))?;
+    history.save_to_file()?;
 
     println!("Game registered");
     Ok(())

@@ -1,6 +1,6 @@
 use crate::cli::ExportArgs;
+use crate::domain::{DomainError, Season};
 use crate::embed::{Body, EmbedError};
-use crate::domain::{Season, DomainError};
 use chrono::Local;
 use std::fmt::Debug;
 

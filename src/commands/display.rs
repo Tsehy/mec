@@ -1,5 +1,5 @@
 use crate::cli::DisplayArgs;
-use crate::domain::{Season, DomainError};
+use crate::domain::{DomainError, Season};
 
 #[derive(Debug, thiserror::Error)]
 pub enum DisplayError {

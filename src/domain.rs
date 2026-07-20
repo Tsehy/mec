@@ -82,7 +82,7 @@ impl Season {
         Ok(season)
     }
 
-    pub fn save_to_file(&self) -> Result<(), DomainError> {
+    pub fn save_to_file(self) -> Result<(), DomainError> {
         let file_path = format!("{}.json", self.name);
         let json = serde_json::to_string(&self)?;
         std::fs::write(file_path, &json)?;

@@ -1,6 +1,6 @@
-use std::fmt::Display;
 use crate::domain::{DomainError, Player, Season};
 use crate::history::event::{EventAction, EventParseError};
+use std::fmt::Display;
 
 pub struct PlayerCreated {
     name: String,

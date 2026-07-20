@@ -1,5 +1,5 @@
 pub mod add_game;
-pub mod display;
-pub mod init;
-pub mod export;
 pub mod add_player;
+pub mod display;
+pub mod export;
+pub mod init;

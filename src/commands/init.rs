@@ -1,5 +1,6 @@
 use crate::cli::InitArgs;
 use crate::domain::Season;
+use crate::history::{History, HistoryError};
 use std::fs::File;
 use std::io::Write;
 use std::path::Path;
@@ -11,12 +12,13 @@ pub enum InitError {
     #[error(transparent)]
     Io(#[from] std::io::Error),
     #[error(transparent)]
+    History(#[from] HistoryError),
+    #[error(transparent)]
     Serialize(#[from] serde_json::error::Error),
     #[error(transparent)]
     DateTime(#[from] chrono::format::ParseError),
 }
 
-// TODO: create history files
 pub fn run(args: &InitArgs) -> Result<(), InitError> {
     let file_name = format!("{}.json", args.name());
     if Path::new(&file_name).exists() {
@@ -29,6 +31,8 @@ pub fn run(args: &InitArgs) -> Result<(), InitError> {
     let json = serde_json::to_string(&season)?;
     output_file.write_all(json.as_bytes())?;
 
-    println!("Created: {file_name}");
+    History::init(args.name())?;
+
+    println!("Season created");
     Ok(())
 }

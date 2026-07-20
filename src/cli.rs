@@ -33,7 +33,13 @@ pub struct InitArgs {
     name: String,
     #[arg(long, short, help = "Starting date (yyyy-mm-dd) [default: today]")]
     date: Option<String>,
-    #[arg(long, short, default_value_t = 1500, required = false, help = "Starting ELO of the new players")]
+    #[arg(
+        long,
+        short,
+        default_value_t = 1500,
+        required = false,
+        help = "Starting ELO of the new players"
+    )]
     elo: u16,
 }
 
@@ -56,7 +62,7 @@ pub struct AddPlayerArgs {
     #[arg(help = "Season's name")]
     season: String,
     #[arg(help = "Player's name")]
-    name: String
+    name: String,
 }
 
 impl AddPlayerArgs {
@@ -91,9 +97,12 @@ impl AddGameArgs {
     pub fn players(&self) -> &[String] {
         &self.players
     }
-    
+
     pub fn players_arr(&self) -> [String; 4] {
-        self.players.clone().try_into().expect("there should be exactly four players")
+        self.players
+            .clone()
+            .try_into()
+            .expect("there should be exactly four players")
     }
 }
 
@@ -101,7 +110,12 @@ impl AddGameArgs {
 pub struct DisplayArgs {
     #[arg(help = "Season's name")]
     season: String,
-    #[arg(long, short, default_value_t = 0, help = "Last N games to display, 0 to display all")]
+    #[arg(
+        long,
+        short,
+        default_value_t = 0,
+        help = "Last N games to display, 0 to display all"
+    )]
     count: u8,
 }
 
@@ -119,11 +133,21 @@ impl DisplayArgs {
 pub struct ExportArgs {
     #[arg(help = "Season's name")]
     season: String,
-    #[arg(long, short = 'n', default_value_t = 1, help = "Last N games to export, 0 to get only the summary")]
+    #[arg(
+        long,
+        short = 'n',
+        default_value_t = 1,
+        help = "Last N games to export, 0 to get only the summary"
+    )]
     count: u8,
     #[arg(long, short, default_value_t = false, help = "Make game files inline")]
     inline: bool,
-    #[arg(long, short, default_value_t = 0x8D0404, help = "Color of the margin (HEX)")]
+    #[arg(
+        long,
+        short,
+        default_value_t = 0x8D0404,
+        help = "Color of the margin (HEX)"
+    )]
     color: u32,
 }
 

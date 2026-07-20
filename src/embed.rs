@@ -18,14 +18,14 @@ impl Body {
         if color > 0xffffff {
             return Err(EmbedError::InvalidColor(color));
         }
-        
+
         Ok(Body {
             fields: Vec::new(),
             title,
             color,
         })
     }
-    
+
     pub fn add_field(&mut self, name: String, value: String, inline: bool) {
         self.fields.push(Field {
             name,
