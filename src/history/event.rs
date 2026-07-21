@@ -9,6 +9,10 @@ pub enum EventParseError {
     UnknownEvent(String),
     #[error("The event has no identifier")]
     NoIdentifier,
+    #[error("Expected number of arguments is `{0}` but found `{0}`")]
+    ArgumentCount(u32, u32),
+    #[error(transparent)]
+    DateTime(#[from] chrono::ParseError),
 }
 
 pub trait EventAction: Display + FromStr {
@@ -39,7 +43,7 @@ impl FromStr for Event {
             Some(word_end) => match &s[..word_end] {
                 "GameCreated" => Ok(Event::GameCreated(GameCreated::from_str(s)?)),
                 "PlayerCreated" => Ok(Event::PlayerCreated(PlayerCreated::from_str(s)?)),
-                _ => Err(EventParseError::UnknownEvent(s.to_string())),
+                _ => Err(EventParseError::UnknownEvent(s.to_owned())),
             },
         }
     }

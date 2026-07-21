@@ -9,7 +9,7 @@ pub struct PlayerCreated {
 impl PlayerCreated {
     pub fn new(name: &str) -> Event {
         Event::PlayerCreated(PlayerCreated {
-            name: name.to_string(),
+            name: name.to_owned(),
         })
     }
 }
@@ -18,7 +18,14 @@ impl std::str::FromStr for PlayerCreated {
     type Err = EventParseError;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        todo!("implement player created event parsing")
+        let parts: Vec<_> = s.split(' ').collect();
+        if parts.len() != 2 {
+            Err(EventParseError::ArgumentCount(2, parts.len() as u32))
+        } else {
+            Ok(PlayerCreated {
+                name: parts[1].to_owned(),
+            })
+        }
     }
 }
 

@@ -23,7 +23,7 @@ pub fn run(args: &AddPlayerArgs) -> Result<(), AddPlayerError> {
         .any(|player| player.name() == args.name());
 
     if player_exists {
-        return Err(AddPlayerError::PlayerExists(args.name().to_string()));
+        return Err(AddPlayerError::PlayerExists(args.name().to_owned()));
     }
 
     let event = PlayerCreated::new(args.name());

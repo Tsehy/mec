@@ -44,20 +44,20 @@ impl History {
         let state: usize = std::fs::read_to_string(format!(".mec/{season_name}/state"))?.parse()?;
         let events: Vec<String> = std::fs::read_to_string(format!(".mec/{season_name}/history"))?
             .lines()
-            .map(|line| line.to_string())
+            .map(ToOwned::to_owned)
             .collect();
 
         Ok(History {
             events,
             state,
-            season: season_name.to_string(),
+            season: season_name.to_owned(),
         })
     }
 
     pub fn append(&mut self, event: Event) -> Result<(), HistoryError> {
         if self.events.len() <= self.state {
             return Err(HistoryError::CorruptedHistory(
-                "State pointer is outside of history".to_string(),
+                "State pointer is outside of history".to_owned(),
             ));
         }
         self.events = self.events[..=self.state].to_vec();

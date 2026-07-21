@@ -18,7 +18,14 @@ impl std::str::FromStr for GameCreated {
     type Err = EventParseError;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        todo!("implement game created event parsing")
+        let parts: Vec<_> = s.split(' ').collect();
+        if parts.len() != 6 {
+            Err(EventParseError::ArgumentCount(5, parts.len() as u32))
+        } else {
+            let date = NaiveDate::parse_from_str(parts[1], "%Y-%m-%d")?;
+            let players: [String; 4] = std::array::from_fn(|i| parts[i + 2].to_owned());
+            Ok(GameCreated { date, players })
+        }
     }
 }
 

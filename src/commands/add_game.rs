@@ -49,7 +49,7 @@ fn check_duplicates(players: &[String]) -> Result<(), AddGameError> {
             .count();
 
         if current_player_count != 1 {
-            return Err(AddGameError::DuplicatePlayer(current_player.clone()));
+            return Err(AddGameError::DuplicatePlayer(current_player.to_owned()));
         }
     }
     Ok(())
@@ -63,7 +63,7 @@ fn check_player_presence(players: &[String], season: &Season) -> Result<(), AddG
             .find(|player| player.name() == player_name)
             .is_none()
         {
-            return Err(AddGameError::MissingPlayer(player_name.to_string()));
+            return Err(AddGameError::MissingPlayer(player_name.to_owned()));
         }
     }
     Ok(())

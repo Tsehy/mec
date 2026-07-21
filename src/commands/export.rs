@@ -98,5 +98,5 @@ fn add_season_summary(embed_body: &mut Body, season: &mut Season) {
         .collect::<Vec<String>>()
         .join("\n");
 
-    embed_body.add_field("__Leaderboard__".to_string(), field_value, false);
+    embed_body.add_field("__Leaderboard__".to_owned(), field_value, false);
 }

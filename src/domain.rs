@@ -99,7 +99,7 @@ impl TryFrom<&InitArgs> for Season {
         };
 
         Ok(Season {
-            name: value.name().to_string(),
+            name: value.name().to_owned(),
             date,
             start_elo: *value.elo(),
             players: Vec::new(),
@@ -117,7 +117,7 @@ pub struct Player {
 impl Player {
     pub fn new(name: &str, elo: u16) -> Self {
         Player {
-            name: name.to_string(),
+            name: name.to_owned(),
             elo,
         }
     }
@@ -165,7 +165,7 @@ pub struct GameInfo {
 impl GameInfo {
     pub fn new(name: &str, elo_before: u16, elo_after: u16) -> Self {
         GameInfo {
-            name: name.to_string(),
+            name: name.to_owned(),
             elo_before,
             elo_after,
         }
