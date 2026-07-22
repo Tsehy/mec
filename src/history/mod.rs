@@ -1,5 +1,6 @@
 use crate::history::event::Event;
 use std::io::Write;
+use std::str::FromStr;
 
 pub mod event;
 pub mod game_created;
@@ -11,6 +12,8 @@ pub enum HistoryError {
     Io(#[from] std::io::Error),
     #[error(transparent)]
     IntParse(#[from] std::num::ParseIntError),
+    #[error(transparent)]
+    Domain(#[from] crate::domain::DomainError),
     #[error("No event to undo")]
     EmptyHistory,
     #[error("Cannot undo `Init` event")]
@@ -69,17 +72,31 @@ impl History {
     }
 
     pub fn undo(&mut self) -> Result<Event, HistoryError> {
-        todo!("implement undo action")
-        // get event at state pointer
-        // decrease state pointer
-        // return event
+        match self.events.get(self.state) {
+            None => Err(HistoryError::EmptyHistory),
+            Some(history_entry) => {
+                if history_entry == "Init" {
+                    return Err(HistoryError::UndoInit);
+                }
+
+                self.state -= 1;
+                Event::from_str(history_entry).map_err(|_| {
+                    HistoryError::CorruptedHistory(format!("Cannot parse `{history_entry}` event"))
+                })
+            }
+        }
     }
 
     pub fn redo(&mut self) -> Result<Event, HistoryError> {
-        todo!("implement redo action")
-        // increase state pointer
-        // get event at state pointer
-        // return event
+        match self.events.get(self.state + 1) {
+            None => Err(HistoryError::EmptyFuture),
+            Some(history_entry) => {
+                self.state += 1;
+                Event::from_str(history_entry).map_err(|_| {
+                    HistoryError::CorruptedHistory(format!("Cannot parse `{history_entry}` event"))
+                })
+            }
+        }
     }
 
     pub fn save_to_file(self) -> Result<(), HistoryError> {

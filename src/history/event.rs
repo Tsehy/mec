@@ -1,5 +1,5 @@
-use crate::domain::{DomainError, Season};
-use crate::history::{game_created::GameCreated, player_created::PlayerCreated};
+use crate::domain::Season;
+use crate::history::{HistoryError, game_created::GameCreated, player_created::PlayerCreated};
 use std::fmt::{Display, Formatter};
 use std::str::FromStr;
 
@@ -16,8 +16,8 @@ pub enum EventParseError {
 }
 
 pub trait EventAction: Display + FromStr {
-    fn execute(&self, season: Season) -> Result<(), DomainError>;
-    fn undo(&self, season: Season) -> Result<(), DomainError>;
+    fn execute(&self, season: Season) -> Result<(), HistoryError>;
+    fn undo(&self, season: Season) -> Result<(), HistoryError>;
 }
 
 pub enum Event {
@@ -50,14 +50,14 @@ impl FromStr for Event {
 }
 
 impl EventAction for Event {
-    fn execute(&self, season: Season) -> Result<(), DomainError> {
+    fn execute(&self, season: Season) -> Result<(), HistoryError> {
         match self {
             Event::GameCreated(event) => event.execute(season),
             Event::PlayerCreated(event) => event.execute(season),
         }
     }
 
-    fn undo(&self, season: Season) -> Result<(), DomainError> {
+    fn undo(&self, season: Season) -> Result<(), HistoryError> {
         match self {
             Event::GameCreated(event) => event.undo(season),
             Event::PlayerCreated(event) => event.undo(season),

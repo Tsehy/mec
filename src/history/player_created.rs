@@ -1,4 +1,5 @@
-use crate::domain::{DomainError, Player, Season};
+use crate::domain::{Player, Season};
+use crate::history::HistoryError;
 use crate::history::event::{Event, EventAction, EventParseError};
 use std::fmt::Display;
 
@@ -36,19 +37,27 @@ impl Display for PlayerCreated {
 }
 
 impl EventAction for PlayerCreated {
-    fn execute(&self, mut season: Season) -> Result<(), DomainError> {
+    fn execute(&self, mut season: Season) -> Result<(), HistoryError> {
         let new_player = Player::new(&self.name, *season.start_elo());
         season.players_mut().push(new_player);
         season.save_to_file()?;
         Ok(())
     }
 
-    fn undo(&self, mut season: Season) -> Result<(), DomainError> {
-        let index = season
+    fn undo(&self, mut season: Season) -> Result<(), HistoryError> {
+        let index = match season
             .players()
             .iter()
             .position(|player| player.name() == self.name)
-            .expect("player should be present in the season");
+        {
+            Some(index) => index,
+            None => {
+                return Err(HistoryError::CorruptedHistory(format!(
+                    "Cannot remove missing player `{}` from the season",
+                    self.name
+                )));
+            }
+        };
 
         season.players_mut().remove(index);
         season.save_to_file()?;

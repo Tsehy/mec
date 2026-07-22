@@ -25,6 +25,10 @@ pub enum CliCommands {
     Display(DisplayArgs),
     #[command(alias = "ex", about = "Generate embed json template for a season")]
     Export(ExportArgs),
+    #[command(about = "Undo the last command")]
+    Undo(HistoryArgs),
+    #[command(about = "Redo the next command")]
+    Redo(HistoryArgs),
 }
 
 #[derive(Args)]
@@ -166,5 +170,17 @@ impl ExportArgs {
 
     pub fn color(&self) -> u32 {
         self.color
+    }
+}
+
+#[derive(Args)]
+pub struct HistoryArgs {
+    #[arg(help = "Season's name")]
+    season: String,
+}
+
+impl HistoryArgs {
+    pub fn season(&self) -> &str {
+        &self.season
     }
 }

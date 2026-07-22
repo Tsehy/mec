@@ -1,4 +1,5 @@
-use crate::domain::{DomainError, Game, GameInfo, Season};
+use crate::domain::{Game, GameInfo, Season};
+use crate::history::HistoryError;
 use crate::history::event::{Event, EventAction, EventParseError};
 use chrono::NaiveDate;
 use std::fmt::{Display, Formatter};
@@ -44,17 +45,24 @@ impl Display for GameCreated {
 }
 
 impl EventAction for GameCreated {
-    fn execute(&self, mut season: Season) -> Result<(), DomainError> {
+    fn execute(&self, mut season: Season) -> Result<(), HistoryError> {
         let mut game_infos = generate_game_infos(&mut season, &self.players);
 
         calculate_new_elo(&mut game_infos);
         for info in game_infos.iter() {
-            season
+            match season
                 .players_mut()
                 .iter_mut()
                 .find(|player| player.name() == info.name())
-                .expect("player should be present")
-                .set_elo(info.elo_after());
+            {
+                Some(player) => player.set_elo(info.elo_after()),
+                None => {
+                    return Err(HistoryError::CorruptedHistory(format!(
+                        "Player `{}` is in the game, but is missing from the season",
+                        info.name()
+                    )));
+                }
+            }
         }
 
         season.games_mut().push(Game::new(self.date, game_infos));
@@ -62,21 +70,32 @@ impl EventAction for GameCreated {
         Ok(())
     }
 
-    fn undo(&self, mut season: Season) -> Result<(), DomainError> {
-        let removed_game = season
-            .games_mut()
-            .pop()
-            .expect("there should be at leas one game in the season");
+    fn undo(&self, mut season: Season) -> Result<(), HistoryError> {
+        let removed_game = match season.games_mut().pop() {
+            Some(last_game) => last_game,
+            None => {
+                return Err(HistoryError::CorruptedHistory(
+                    "The last event is a game, but the season is empty".to_owned(),
+                ));
+            }
+        };
 
         for game_info in removed_game.players() {
-            let player = season
+            match season
                 .players_mut()
                 .iter_mut()
                 .find(|player| player.name() == game_info.name())
-                .expect("player should be in the season");
-
-            player.set_elo(game_info.elo_before());
+            {
+                Some(player) => player.set_elo(game_info.elo_before()),
+                None => {
+                    return Err(HistoryError::CorruptedHistory(format!(
+                        "Player `{}` is in the game, but is missing from the season",
+                        game_info.name()
+                    )));
+                }
+            }
         }
+        season.save_to_file()?;
         Ok(())
     }
 }
