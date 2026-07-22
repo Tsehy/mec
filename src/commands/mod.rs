@@ -3,5 +3,5 @@ pub mod add_player;
 pub mod display;
 pub mod export;
 pub mod init;
-pub mod undo;
 pub mod redo;
+pub mod undo;

@@ -1,7 +1,7 @@
 use crate::cli::HistoryArgs;
 use crate::domain::Season;
-use crate::history::{History, HistoryError};
 use crate::history::event::EventAction;
+use crate::history::{History, HistoryError};
 
 pub fn run(args: &HistoryArgs) -> Result<(), HistoryError> {
     let season = Season::load(args.season())?;
@@ -9,7 +9,7 @@ pub fn run(args: &HistoryArgs) -> Result<(), HistoryError> {
     let event = history.redo()?;
     event.execute(season)?;
     history.save_to_file()?;
-    
+
     println!("Next command executed");
     Ok(())
 }
