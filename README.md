@@ -10,8 +10,4 @@ To calculate the ranking of a four player game the software generates and evalua
 - Add game to a season
 - Display quick information
 - Export summary to JSON (For [carl.gg](https://carl.gg) discord embed)
-
-## ToDo list
-
-- [ ] 'Remove player' command to be able to correct mistakes
-- [ ] Add real 'undo/reset' command, to correct any destructive operation
+- Undo and redo commands
